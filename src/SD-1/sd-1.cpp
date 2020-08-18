@@ -50,7 +50,44 @@ void SD1::allNotesOff(uint8_t){
 }
 
 void SD1::reset(void){
+    _rst = 0;
+    wait_us(100);
+    _rst = 1;
 
+    singleWrite(0x1D, 0x01);
+    singleWrite(0x02, 0x0E);
+    wait_us(1);
+    singleWrite(0x00, 0x01);
+    singleWrite(0x01, 0x00);
+    singleWrite(0x1A, 0xA3);
+    wait_us(1);
+    singleWrite(0x1A, 0x00);
+    thread_sleep_for(30);
+    singleWrite(0x02, 0x04);
+    wait_us(1);
+    singleWrite(0x02, 0x00);
+    singleWrite(0x19, 0x95);
+    singleWrite(0x1B, 0x3F);
+    singleWrite(0x14, 0x00);
+    singleWrite(0x03, 0x01);
+
+    singleWrite(0x08, 0xF6);
+    wait_us(21);
+    singleWrite(0x08, 0x00);
+    singleWrite(0x09, 0xF8);
+    singleWrite(0x0A, 0x00);
+
+    singleWrite(0x17, 0x40);
+    singleWrite(0x18, 0x00);
+
+    for (int i = 0; i < 16; i++) {
+        singleWrite(0x0B, i);
+        singleWrite(0x0F, 0x30);
+        singleWrite(0x10, 0x71);
+        singleWrite(0x11, 0x00);
+        singleWrite(0x12, 0x08);
+        singleWrite(0x13, 0x00);
+    }
 }
 
 inline uint8_t SD1::channelSearch(void){
