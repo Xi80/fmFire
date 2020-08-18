@@ -45,7 +45,6 @@ class SD1{
 
         inline uint8_t  channelSearch(void);
         inline uint8_t  channelSearch(uint8_t,uint8_t);
-        inline void     channelSet(uint8_t,bool);
         inline void     setSlaveSelect(bool);
         inline void     setChannel(uint8_t);
         inline void     singleWrite(uint8_t,uint8_t);

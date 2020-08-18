@@ -10,7 +10,7 @@ void SD1::noteOff(uint8_t midiChannel,uint8_t midiNote){
     if(!fmStatus[ch].isHold){
         setChannel(ch);
         singleWrite(0x0F, 0x00);
-        channelSet(ch,false);
+        fmStatus[ch].isUsed = false;
     }
 
     return;
@@ -18,7 +18,7 @@ void SD1::noteOff(uint8_t midiChannel,uint8_t midiNote){
 
 void SD1::noteOn(uint8_t midiChannel,uint8_t midiNote,uint8_t midiVelocity){
     uint8_t ch = channelSearch();
-    channelSet(ch,true);
+    fmStatus[ch].isUsed = true;
     setChannel(ch);
 
     //ピッチベンド
@@ -185,7 +185,7 @@ void SD1::hold(uint8_t midiChannel,bool state){
                 fmStatus[i].isHold = false;
                 setChannel(i);
                 singleWrite(0x0F, 0x00);
-                channelSet(i,false);
+                fmStatus[i].isUsed = false;
             }
         }
     }
@@ -193,7 +193,7 @@ void SD1::hold(uint8_t midiChannel,bool state){
 
 void SD1::allSoundsOff(uint8_t){
     for(uint8_t i = 0;i < 0x10;i++){
-        channelSet(i,false);
+        fmStatus[i].isUsed = false;
     }
     singleWrite(0x08, 0x40);
     return;
@@ -201,7 +201,7 @@ void SD1::allSoundsOff(uint8_t){
 
 void SD1::allNotesOff(uint8_t){
     for(uint8_t i = 0;i < 0x10;i++){
-        channelSet(i,false);
+        fmStatus[i].isUsed = false;
     }
     singleWrite(0x08, 0x80);
     return;
@@ -271,11 +271,6 @@ inline uint8_t  SD1::channelSearch(uint8_t midiChannel,uint8_t midiNote){
         }
     }
     return 0xFF;
-}
-
-inline void SD1::channelSet(uint8_t channel,bool state){
-    fmStatus[channel].isUsed = state;
-    return;
 }
 
 inline void SD1::setSlaveSelect(bool state){
