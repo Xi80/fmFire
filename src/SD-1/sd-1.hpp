@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mbed.h>
 
 /*
@@ -6,6 +8,10 @@
  *  sd-1.hpp
  *  SD-1制御ライブラリ
  */
+
+#include "structs.hpp"
+
+#include "table.hpp"
 
 class SD1{
     public:
@@ -31,11 +37,17 @@ class SD1{
         SPI _spi;
         DigitalOut _ss,_rst;
 
+        uint8_t recentCh = 0;
+
+        struct fmStatus_t fmStatus[16];
+        struct midiStatus_t midiStatus[16];
+
         inline uint8_t  channelSearch(void);
+        inline uint8_t  channelSearch(uint8_t,uint8_t);
         inline void     channelSet(uint8_t,bool);
         inline void     setSlaveSelect(bool);
         inline void     setChannel(uint8_t);
-        inline void     setAddress(uint8_t);
-        inline void     singleWrite(uint8_t);
-        inline void     burstWrite(uint8_t*,uint8_t);
+        inline void     singleWrite(uint8_t,uint8_t);
+        inline void     burstWrite(uint8_t,uint8_t*,uint8_t);
+        inline void     write(uint8_t data);
 };
