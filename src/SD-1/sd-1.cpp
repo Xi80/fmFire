@@ -5,16 +5,74 @@ SD1::SD1(PinName mosi,PinName miso,PinName sclk,PinName ss,PinName rst) : _spi(m
     reset();
 }
 
-void SD1::noteOff(uint8_t,uint8_t){
+void SD1::noteOff(uint8_t midiChannel,uint8_t midiNote){
+    uint8_t ch  = channelSearch(midiChannel,midiNote);
+    if(!fmStatus[ch].isHold){
+        setChannel(ch);
+        singleWrite(0x0F, 0x00);
+        channelSet(ch,false);
+    }
 
+    return;
 }
 
-void SD1::noteOn(uint8_t,uint8_t,uint8_t){
+void SD1::noteOn(uint8_t midiChannel,uint8_t midiNote,uint8_t midiVelocity){
+    uint8_t ch = channelSearch();
+    channelSet(ch,true);
+    setChannel(ch);
 
+    //ピッチベンド
+    if(midiStatus[midiChannel].pitchBendSensitivity){
+        uint8_t pit = midiStatus[midiChannel].pitchBend >> 6;
+        uint16_t INT = (pitchBendTable[midiStatus[midiChannel].pitchBendSensitivity - 1][pit] >> 9) & 0x03;
+        uint16_t FRAC = pitchBendTable[midiStatus[midiChannel].pitchBendSensitivity - 1][pit] & 0x1FF;
+
+        singleWrite(0x12, (INT << 3) | ((FRAC >> 6) & 0x07));
+        singleWrite(0x13, (FRAC & 0x3F) << 1);
+    }
+
+    //モジュレーション
+    uint8_t modulation = midiStatus[midiChannel].modulation >> 4;
+    singleWrite(0x11, modulation);
+
+    //パートレベル・エクスプレッション
+    uint8_t chVol = expTable[(midiStatus[midiChannel].partLevel >> 3)][(midiStatus[midiChannel].expression >> 3)];
+    singleWrite(0x10,chVol);
+
+    //ベロシティ
+    uint8_t velocity = midiVelocity >> 1;
+    singleWrite(0x0C, velocity);
+
+    //ホールド
+    fmStatus[ch].isHold = midiStatus[midiChannel].isHold;
+
+    //ノートオン
+    singleWrite(0x0D, fNumberTableHigh[midiNote]);
+    singleWrite(0x0E, fNumberTableLow[midiNote]);
+
+    singleWrite(0x0F, 0x40 | (midiChannel & 0x0F));
+
+    return;
 }
 
-void SD1::programChange(uint8_t,uint8_t){
+void SD1::programChange(uint8_t midiChannel,uint8_t inst){
+    midiStatus[midiChannel].programNumber = inst;
 
+    toneBuffer[0] = 0x81 + midiChannel;
+
+    for(uint8_t i = 0;i <= midiChannel;i++){
+        for(uint8_t j = 0;j < 30;j++){
+            toneBuffer[30 * i + j] = gmTable[midiStatus[i].programNumber][j];
+        }
+    }
+
+    toneBuffer[30 * (midiChannel + 1) + 1] = 0x80;
+    toneBuffer[30 * (midiChannel + 1) + 2] = 0x03;
+    toneBuffer[30 * (midiChannel + 1) + 3] = 0x81;
+    toneBuffer[30 * (midiChannel + 1) + 4] = 0x80;
+
+    burstWrite(0x07,&toneBuffer[0],30 * (midiChannel + 1) + 5);
+    return;
 }
 
 void SD1::pitchBend(uint8_t,uint16_t){
@@ -81,7 +139,7 @@ void SD1::reset(void){
     singleWrite(0x18, 0x00);
 
     for (int i = 0; i < 16; i++) {
-        singleWrite(0x0B, i);
+        setChannel(i);
         singleWrite(0x0F, 0x30);
         singleWrite(0x10, 0x71);
         singleWrite(0x11, 0x00);

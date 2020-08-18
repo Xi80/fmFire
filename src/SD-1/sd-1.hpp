@@ -38,6 +38,7 @@ class SD1{
         DigitalOut _ss,_rst;
 
         uint8_t recentCh = 0;
+        uint8_t toneBuffer[485];
 
         struct fmStatus_t fmStatus[16];
         struct midiStatus_t midiStatus[16];
