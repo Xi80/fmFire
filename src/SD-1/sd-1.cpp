@@ -246,6 +246,8 @@ void SD1::reset(void){
         singleWrite(0x12, 0x08);
         singleWrite(0x13, 0x00);
     }
+    programChange(0x0F,0);
+    return;
 }
 
 inline uint8_t SD1::channelSearch(void){
