@@ -22,21 +22,31 @@ void SD1::noteOn(uint8_t midiChannel,uint8_t midiNote,uint8_t midiVelocity){
     setChannel(ch);
 
     //ピッチベンド
+    uint8_t pit;
+    uint8_t INT,FRAC;
     if(midiStatus[midiChannel].pitchBendSensitivity){
-        uint8_t pit = midiStatus[midiChannel].pitchBend >> 6;
-        uint16_t INT = (pitchBendTable[midiStatus[midiChannel].pitchBendSensitivity - 1][pit] >> 9) & 0x03;
-        uint16_t FRAC = pitchBendTable[midiStatus[midiChannel].pitchBendSensitivity - 1][pit] & 0x1FF;
+        pit = midiStatus[midiChannel].pitchBend >> 6;
+        INT = (pitchBendTable[midiStatus[midiChannel].pitchBendSensitivity - 1][pit] >> 9) & 0x03;
+        FRAC = pitchBendTable[midiStatus[midiChannel].pitchBendSensitivity - 1][pit] & 0x1FF;
 
-        singleWrite(0x12, (INT << 3) | ((FRAC >> 6) & 0x07));
-        singleWrite(0x13, (FRAC & 0x3F) << 1);
+    } else {
+        INT = (0x2000 >> 9) & 0x03;
+        FRAC = 0x2000 & 0x01FF;
     }
+    singleWrite(0x12, (INT << 3) | ((FRAC >> 6) & 0x07));
+    singleWrite(0x13, (FRAC & 0x3F) << 1);
 
     //モジュレーション
     uint8_t modulation = midiStatus[midiChannel].modulation >> 4;
     singleWrite(0x11, modulation);
 
     //パートレベル・エクスプレッション
-    uint8_t chVol = expTable[(midiStatus[midiChannel].partLevel >> 3)][(midiStatus[midiChannel].expression >> 3)];
+    uint8_t chVol;
+    if(midiStatus[midiChannel].partLevel || midiStatus[midiChannel].expression){
+        chVol = expTable[(midiStatus[midiChannel].partLevel >> 3)][(midiStatus[midiChannel].expression >> 3)];
+    } else {
+        chVol = 0x00;
+    }
     singleWrite(0x10,chVol);
 
     //ベロシティ
