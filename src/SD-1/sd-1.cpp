@@ -85,36 +85,126 @@ void SD1::programChange(uint8_t midiChannel,uint8_t inst){
     return;
 }
 
-void SD1::pitchBend(uint8_t,uint16_t){
+void SD1::pitchBend(uint8_t midiChannel,uint16_t pitch){
+    midiStatus[midiChannel].pitchBend = pitch;
 
+    uint8_t pit;
+    uint8_t INT,FRAC;
+    if(midiStatus[midiChannel].pitchBendSensitivity){
+        pit = midiStatus[midiChannel].pitchBend >> 6;
+        INT = (pitchBendTable[midiStatus[midiChannel].pitchBendSensitivity - 1][pit] >> 9) & 0x03;
+        FRAC = pitchBendTable[midiStatus[midiChannel].pitchBendSensitivity - 1][pit] & 0x1FF;
+
+    } else {
+        INT = (0x2000 >> 9) & 0x03;
+        FRAC = 0x2000 & 0x01FF;
+    }
+
+    for(uint8_t i = 0;i < 0x10;i++){
+        if(fmStatus[i].isUsed && fmStatus[i].midiChannel == midiChannel){
+            setChannel(i);
+            singleWrite(0x12, (INT << 3) | ((FRAC >> 6) & 0x07));
+            singleWrite(0x13, (FRAC & 0x3F) << 1);
+        }
+    }
+
+    return;
 }
 
-void SD1::modulation(uint8_t,uint8_t){
+void SD1::modulation(uint8_t midiChannel,uint8_t value){
+    midiStatus[midiChannel].modulation = value;
+    uint8_t modulation = midiStatus[midiChannel].modulation >> 4;
 
+    for(uint8_t i = 0;i < 0x10;i++){
+        if(fmStatus[i].isUsed && fmStatus[i].midiChannel == midiChannel){
+            setChannel(i);
+            singleWrite(0x11, modulation);
+        }
+    }
+
+    return;
 }
 
-void SD1::pitchBendSensitivity(uint8_t,uint8_t){
-
+void SD1::pitchBendSensitivity(uint8_t midiChannel,uint8_t value){
+    midiStatus[midiChannel].pitchBendSensitivity = value;
+    return;
 }
 
-void SD1::expression(uint8_t,uint8_t){
+void SD1::expression(uint8_t midiChannel,uint8_t volume){
+    midiStatus[midiChannel].expression = volume;
+    uint8_t chVol;
 
+    if(midiStatus[midiChannel].partLevel || midiStatus[midiChannel].expression){
+        chVol = expTable[(midiStatus[midiChannel].partLevel >> 3)][(midiStatus[midiChannel].expression >> 3)];
+    } else {
+        chVol = 0x00;
+    }
+
+    for(uint8_t i = 0;i < 0x10;i++){
+        if(fmStatus[i].isUsed && fmStatus[i].midiChannel == midiChannel){
+            setChannel(i);
+            singleWrite(0x10,chVol);
+        }
+    }
+
+    return;
 }
 
-void SD1::partLevel(uint8_t,uint8_t){
+void SD1::partLevel(uint8_t midiChannel,uint8_t volume){
+    midiStatus[midiChannel].partLevel = volume;
+    uint8_t chVol;
 
+    if(midiStatus[midiChannel].partLevel || midiStatus[midiChannel].expression){
+        chVol = expTable[(midiStatus[midiChannel].partLevel >> 3)][(midiStatus[midiChannel].expression >> 3)];
+    } else {
+        chVol = 0x00;
+    }
+
+    for(uint8_t i = 0;i < 0x10;i++){
+        if(fmStatus[i].isUsed && fmStatus[i].midiChannel == midiChannel){
+            setChannel(i);
+            singleWrite(0x10,chVol);
+        }
+    }
+
+    return;
 }
 
-void SD1::hold(uint8_t,bool){
-
+void SD1::hold(uint8_t midiChannel,bool state){
+    if(state){
+        midiStatus[midiChannel].isHold = true;
+        for(uint8_t i = 0;i < 0x10;i++){
+            if(fmStatus[i].isUsed && fmStatus[i].midiChannel == midiChannel){
+                fmStatus[i].isHold = true;
+            }
+        }
+    } else {
+        midiStatus[midiChannel].isHold = false;
+        for(uint8_t i = 0;i < 0x10;i++){
+            if(fmStatus[i].isUsed && fmStatus[i].midiChannel == midiChannel){
+                fmStatus[i].isHold = false;
+                setChannel(i);
+                singleWrite(0x0F, 0x00);
+                channelSet(i,false);
+            }
+        }
+    }
 }
 
 void SD1::allSoundsOff(uint8_t){
-
+    for(uint8_t i = 0;i < 0x10;i++){
+        channelSet(i,false);
+    }
+    singleWrite(0x08, 0x40);
+    return;
 }
 
 void SD1::allNotesOff(uint8_t){
-
+    for(uint8_t i = 0;i < 0x10;i++){
+        channelSet(i,false);
+    }
+    singleWrite(0x08, 0x80);
+    return;
 }
 
 void SD1::reset(void){
