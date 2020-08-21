@@ -35,6 +35,7 @@ public:
 
     SPI _spi;
 private:
+    uint8_t recentPb = 0x00;
     DigitalOut _slaveSelect, _reset;
     uint8_t toneNumbers[16];
     void singleWrite(uint8_t, uint8_t);

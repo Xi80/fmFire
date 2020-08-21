@@ -17,13 +17,6 @@ midi::midi(PinName tx, PinName rx, uint16_t baud) : _serial(tx, rx) {
     _serial.attach(callback(this, &midi::receiveMessage), SerialBase::RxIrq);
 }
 
-void midi::rxIrq(bool status){
-    if(status){
-        _serial.attach(callback(this, &midi::receiveMessage), SerialBase::RxIrq);
-    } else {
-        _serial.attach(NULL,SerialBase::RxIrq);
-    }
-}
 void midi::resetStatus(void) {
     messageBuffer.clear();
     systemExclusiveBufferPosition = 0;
@@ -139,13 +132,6 @@ void midi::recv(void){
     uint8_t data;
     _serial.read(&data,1);
     messageBuffer.push_back(data);
-    return;
-}
-
-DigitalOut LED(LED1);
-void midi::receiveMessage(void) {
-    LED = !LED;
-    recv();
     return;
 }
 

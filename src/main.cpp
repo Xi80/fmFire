@@ -31,7 +31,7 @@ void noteOn(uint8_t channel,uint8_t note,uint8_t velocity){
             _fmStatus[i].noteNumber = note;
             _fmStatus[i].midiChannel = channel;
             YMF825.noteOff(i);
-            YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) + 1][(_midiStatus[channel].expression >> 3) + 1]);
+            YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) - 1][(_midiStatus[channel].expression >> 3) - 1]);
             YMF825.setModulation(i,_midiStatus[channel].modulation);
             YMF825.pitchWheelChange(i,_midiStatus[channel].pitchBend,_midiStatus[channel].pitchBendSensitivity);
             YMF825.noteOn(i,note,velocity >> 1,channel);
@@ -50,7 +50,7 @@ void noteOn(uint8_t channel,uint8_t note,uint8_t velocity){
             _fmStatus[i].noteNumber = note;
             _fmStatus[i].midiChannel = channel;
             YMF825.noteOff(i);
-            YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) + 1][(_midiStatus[channel].expression >> 3) + 1]);
+            YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) - 1][(_midiStatus[channel].expression >> 3) - 1]);
             YMF825.setModulation(i,_midiStatus[channel].modulation);
             YMF825.pitchWheelChange(i,_midiStatus[channel].pitchBend,_midiStatus[channel].pitchBendSensitivity);
             YMF825.noteOn(i,note,velocity >> 1,channel);
@@ -128,7 +128,7 @@ void controlChange(uint8_t channel,uint8_t number,uint8_t value){
             _midiStatus[channel].partLevel = value;
             for(int i = 0;i < 16;i++){
                 if(_fmStatus[i].isUsed   == true && _fmStatus[i].midiChannel == channel){
-                    YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) + 1][(_midiStatus[channel].expression >> 3) + 1]);
+                    YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) - 1][(_midiStatus[channel].expression >> 3) - 1]);
                 }
             }
             break;
@@ -136,7 +136,7 @@ void controlChange(uint8_t channel,uint8_t number,uint8_t value){
             _midiStatus[channel].expression = value;
             for(int i = 0;i < 16;i++){
                 if(_fmStatus[i].isUsed == true && _fmStatus[i].midiChannel == channel){
-                    YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) + 1][(_midiStatus[channel].expression >> 3) + 1]);
+                    YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) - 1][(_midiStatus[channel].expression >> 3) - 1]);
                 }
             }
             break;
