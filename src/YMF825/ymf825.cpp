@@ -13,12 +13,6 @@ void ymf825::initialise(bool softReset = false) {
         for (int i = 0l; i < 16; i++) {
             toneNumbers[i] = 0;
         }
-        /*
-        toneNumbers[9] = 128;
-        toneNumbers[13] = 129;
-        toneNumbers[14] = 130;
-        toneNumbers[15] = 131;
-        */
     }
 
     _reset = 0;
@@ -124,9 +118,10 @@ void ymf825::noteOff(uint8_t channel) {
 }
 
 void ymf825::pitchWheelChange(uint8_t channel, uint16_t pitch, uint8_t sensitivity) {
+    if(sensitivity == 0)return;
     uint8_t pit = pitch >> 6;
-    uint16_t INT = (pitchBendTable[sensitivity][pit] >> 9) & 0x03;
-    uint16_t FRAC = pitchBendTable[sensitivity][pit] & 0x1FF;
+    uint16_t INT = (pitchBendTable[sensitivity + 1][pit] >> 9) & 0x03;
+    uint16_t FRAC = pitchBendTable[sensitivity + 1][pit] & 0x1FF;
     singleWrite(0x0B, channel);
     singleWrite(0x12, (INT << 3) | ((FRAC >> 6) & 0x07));
     singleWrite(0x13, (FRAC & 0x3F) << 1);

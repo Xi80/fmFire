@@ -14,6 +14,7 @@ struct fmStatus _fmStatus[16];
 struct midiStatus _midiStatus[16];
 
 void noteOn(uint8_t channel,uint8_t note,uint8_t velocity){
+    if((_midiStatus[channel].partLevel >> 3) == 0 || (_midiStatus[channel].expression >> 3) == 0 || velocity >> 3 == 0)return;
     if(_bridgeStatus.prevOnCh > 15){
         _bridgeStatus.prevOnCh = 0;
     }
@@ -30,7 +31,7 @@ void noteOn(uint8_t channel,uint8_t note,uint8_t velocity){
             _fmStatus[i].noteNumber = note;
             _fmStatus[i].midiChannel = channel;
             YMF825.noteOff(i);
-            YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3)][(_midiStatus[channel].expression >> 3)]);
+            YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) + 1][(_midiStatus[channel].expression >> 3) + 1]);
             YMF825.setModulation(i,_midiStatus[channel].modulation);
             YMF825.pitchWheelChange(i,_midiStatus[channel].pitchBend,_midiStatus[channel].pitchBendSensitivity);
             YMF825.noteOn(i,note,velocity >> 1,channel);
@@ -49,7 +50,7 @@ void noteOn(uint8_t channel,uint8_t note,uint8_t velocity){
             _fmStatus[i].noteNumber = note;
             _fmStatus[i].midiChannel = channel;
             YMF825.noteOff(i);
-            YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3)][(_midiStatus[channel].expression >> 3)]);
+            YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) + 1][(_midiStatus[channel].expression >> 3) + 1]);
             YMF825.setModulation(i,_midiStatus[channel].modulation);
             YMF825.pitchWheelChange(i,_midiStatus[channel].pitchBend,_midiStatus[channel].pitchBendSensitivity);
             YMF825.noteOn(i,note,velocity >> 1,channel);
@@ -96,10 +97,6 @@ void pitchBend(uint8_t channel,uint16_t pitchBend){
 
 void controlChange(uint8_t channel,uint8_t number,uint8_t value){
     switch(number){
-        case 0:
-            if(value != 64)return;
-            _midiStatus[channel].bankMsb = value;
-            break;
         case 1:
             _midiStatus[channel].modulation = value;
             for(int i = 0;i < 16;i++){
@@ -131,7 +128,7 @@ void controlChange(uint8_t channel,uint8_t number,uint8_t value){
             _midiStatus[channel].partLevel = value;
             for(int i = 0;i < 16;i++){
                 if(_fmStatus[i].isUsed   == true && _fmStatus[i].midiChannel == channel){
-                    YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3)][(_midiStatus[channel].expression >> 3)]);
+                    YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) + 1][(_midiStatus[channel].expression >> 3) + 1]);
                 }
             }
             break;
@@ -139,7 +136,7 @@ void controlChange(uint8_t channel,uint8_t number,uint8_t value){
             _midiStatus[channel].expression = value;
             for(int i = 0;i < 16;i++){
                 if(_fmStatus[i].isUsed == true && _fmStatus[i].midiChannel == channel){
-                    YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3)][(_midiStatus[channel].expression >> 3)]);
+                    YMF825.setChannelVolume(i,expTable[(_midiStatus[channel].partLevel >> 3) + 1][(_midiStatus[channel].expression >> 3) + 1]);
                 }
             }
             break;
@@ -165,6 +162,7 @@ void controlChange(uint8_t channel,uint8_t number,uint8_t value){
     }
 }
 
+
 void programChange(uint8_t channel,uint8_t number){
     if(channel == 9)return;
     _midiStatus[channel].programNumber = number;
@@ -172,6 +170,7 @@ void programChange(uint8_t channel,uint8_t number){
     YMF825.sendToneList(channel);
     return;
 }
+
 
 void reset(void){
     for(int i = 0;i < 16;i++){
@@ -191,6 +190,7 @@ void reset(void){
     YMF825.sendAllToneList();
 }
 
+
 void soundsOff(uint8_t channel){
     YMF825.allMute();
     for(int i = 0;i < 16;i++){
@@ -200,6 +200,7 @@ void soundsOff(uint8_t channel){
     reset();
 }
 
+
 void notesOff(uint8_t channel){
     YMF825.allKeyOff();
     for(int i = 0;i < 16;i++){
@@ -208,6 +209,7 @@ void notesOff(uint8_t channel){
     MIDI.resetStatus();
     reset();
 }
+
 
 int main(void){
     wait_us(500);
