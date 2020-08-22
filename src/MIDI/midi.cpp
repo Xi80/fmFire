@@ -36,7 +36,7 @@
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-MIDI::MIDI(PinName tx,PinName rx,uint16_t baud) : _serial(tx,rx){
+MIDI::MIDI(PinName tx, PinName rx, uint16_t baud) : _serial(tx, rx) {
 
     //各種コールバック関数のリセット
     callbackFunc.noteOnFunc = NULL;
@@ -58,13 +58,13 @@ MIDI::MIDI(PinName tx,PinName rx,uint16_t baud) : _serial(tx,rx){
     _serial.baud(baud);
 
     _serial.format(
-        /*ビット長*/        8,
-        /*パリティ*/        SerialBase::None,
-        /*ストップビット*/  1
+            /*ビット長*/        8,
+            /*パリティ*/        SerialBase::None,
+            /*ストップビット*/  1
     );
 
     //受信割込みにgetDataを登録
-    _serial.attach(callback(this,&MIDI::getData),SerialBase::RxIrq);
+    _serial.attach(callback(this, &MIDI::getData), SerialBase::RxIrq);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,9 +82,9 @@ MIDI::MIDI(PinName tx,PinName rx,uint16_t baud) : _serial(tx,rx){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::getData(void){
+void MIDI::getData(void) {
     //データの存在チェック(無視してもおそらく問題ない)
-    if(_serial.read(&temp,1)){
+    if (_serial.read(&temp, 1)) {
         circularBuffer.push_back(temp);
     }
 }
@@ -103,10 +103,10 @@ void MIDI::getData(void){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::parseMIDI(void){
+void MIDI::parseMIDI(void) {
 
     //システムエクスクルーシブメッセージ中か？
-    if(isSystemExclusive){
+    if (isSystemExclusive) {
         parseSystemExclusives();
     } else {
         parseNormalMessages();
@@ -129,12 +129,12 @@ void MIDI::parseMIDI(void){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::setTwoBytes(bool flag){
+void MIDI::setTwoBytes(bool flag) {
     //2バイト目にストア
     msg.second = temp;
 
     //3バイト目が来るか
-    if(flag){
+    if (flag) {
 
         //3バイト目フラグをセット
         threeByteFlag = true;
@@ -161,14 +161,14 @@ void MIDI::setTwoBytes(bool flag){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::parseNormalMessages(void){
+void MIDI::parseNormalMessages(void) {
 
     //バッファに何かあれば取り出す
-    if(!circularBuffer.size())return;
+    if (!circularBuffer.size())return;
     temp = circularBuffer.pull();
 
     //システムエクスクルーシブ開始か？
-    if(temp == 0xF0){
+    if (temp == 0xF0) {
 
         //システムエクスクルーシブモードオン
         isSystemExclusive = true;
@@ -179,10 +179,10 @@ void MIDI::parseNormalMessages(void){
         return;
     }
 
-    if(temp >> 7){
+    if (temp >> 7) {
         //ステータスバイト
         //0xF8以上は無視する
-        if(temp >= 0xF8)return;
+        if (temp >= 0xF8)return;
 
         //ランニングステータスバッファに格納
         msg.message = temp & 0xF0;
@@ -197,7 +197,7 @@ void MIDI::parseNormalMessages(void){
 
         //データバイト
         //3バイト目フラグチェック
-        if(threeByteFlag){
+        if (threeByteFlag) {
 
             //3バイト目フラグをクリア
             threeByteFlag = false;
@@ -213,10 +213,10 @@ void MIDI::parseNormalMessages(void){
         } else {
 
             //ランニングステータスバッファが0なら無視する
-            if(!msg.message && !msg.channel)return;
+            if (!msg.message && !msg.channel)return;
 
             //ステータス< C0h
-            if(msg.message < 0xC0){
+            if (msg.message < 0xC0) {
 
                 //3バイトメッセージ
                 setTwoBytes(true);
@@ -226,7 +226,7 @@ void MIDI::parseNormalMessages(void){
             } else {
 
                 //ステータス<E0h
-                if(msg.message < 0xE0){
+                if (msg.message < 0xE0) {
 
                     //2バイトメッセージ
                     setTwoBytes(false);
@@ -236,7 +236,7 @@ void MIDI::parseNormalMessages(void){
                 } else {
 
                     //ステータス < F0h
-                    if(msg.message < 0xF0){
+                    if (msg.message < 0xF0) {
 
                         //3バイトメッセージ
                         setTwoBytes(true);
@@ -245,10 +245,10 @@ void MIDI::parseNormalMessages(void){
                     } else {
 
                         //ステータス >= F0h
-                        if(msg.message >= 0xF0){
+                        if (msg.message >= 0xF0) {
 
                             //ステータス = F2h
-                            if(msg.message == 0xF2){
+                            if (msg.message == 0xF2) {
 
                                 //ランニングステータスバッファをクリア
                                 msg.message = 0x00;
@@ -260,7 +260,7 @@ void MIDI::parseNormalMessages(void){
                                 return;
                             } else {
                                 //ステータス = F3h or F1h
-                                if(msg.message == 0xF3 || msg.message == 0xF1){
+                                if (msg.message == 0xF3 || msg.message == 0xF1) {
                                     //ランニングステータスバッファをクリア
                                     msg.message = 0x00;
                                     msg.channel = 0x00;
@@ -303,13 +303,13 @@ void MIDI::parseNormalMessages(void){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::parseSystemExclusives(void){
+void MIDI::parseSystemExclusives(void) {
     //バッファに何かあれば取り出す
-    if(!circularBuffer.size())return;
+    if (!circularBuffer.size())return;
     temp = circularBuffer.pull();
 
     //システムエクスクルーシブ終了か？
-    if(temp == 0xF7){
+    if (temp == 0xF7) {
 
         //システムエクスクルーシブモードオフ
         isSystemExclusive = false;
@@ -338,32 +338,32 @@ void MIDI::parseSystemExclusives(void){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::decodeNormalMessage(void){
-    switch(msg.message){
+void MIDI::decodeNormalMessage(void) {
+    switch (msg.message) {
         case msg::noteOn:
 
             //ベロシティが0=ノートオフ
-            if(msg.third == 0x00){
+            if (msg.third == 0x00) {
                 _nullChk(callbackFunc.noteOffFunc);
-                callbackFunc.noteOffFunc(msg.channel,msg.second);
+                callbackFunc.noteOffFunc(msg.channel, msg.second);
                 break;
             }
 
             //ノートオン
             _nullChk(callbackFunc.noteOnFunc);
-            callbackFunc.noteOnFunc(msg.channel,msg.second,msg.third);
+            callbackFunc.noteOnFunc(msg.channel, msg.second, msg.third);
             break;
         case msg::noteOff:
 
             //ノートオフ
             _nullChk(callbackFunc.noteOffFunc);
-            callbackFunc.noteOffFunc(msg.channel,msg.second);
+            callbackFunc.noteOffFunc(msg.channel, msg.second);
             break;
         case msg::programChange:
 
             //プログラムチェンジ
             _nullChk(callbackFunc.programChangeFunc);
-            callbackFunc.programChangeFunc(msg.channel,msg.second);
+            callbackFunc.programChangeFunc(msg.channel, msg.second);
             break;
         case msg::controlChange:
 
@@ -374,7 +374,7 @@ void MIDI::decodeNormalMessage(void){
 
             //ピッチベンド
             _nullChk(callbackFunc.pitchBendFunc);
-            callbackFunc.pitchBendFunc(msg.channel,(msg.third << 7) | msg.second);
+            callbackFunc.pitchBendFunc(msg.channel, (msg.third << 7) | msg.second);
             break;
         default:
 
@@ -398,13 +398,13 @@ void MIDI::decodeNormalMessage(void){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::decodeControlChange(void){
-    switch(msg.second){
+void MIDI::decodeControlChange(void) {
+    switch (msg.second) {
         case msg::modulation:
 
             //モジュレーション
             _nullChk(callbackFunc.modulationFunc);
-            callbackFunc.modulationFunc(msg.channel,msg.third);
+            callbackFunc.modulationFunc(msg.channel, msg.third);
             break;
         case msg::dataEntry:
 
@@ -415,19 +415,19 @@ void MIDI::decodeControlChange(void){
 
             //チャネルボリューム
             _nullChk(callbackFunc.channelVolumeFunc);
-            callbackFunc.channelVolumeFunc(msg.channel,msg.third);
+            callbackFunc.channelVolumeFunc(msg.channel, msg.third);
             break;
         case msg::expression:
 
             //エクスプレッション
             _nullChk(callbackFunc.expressionFunc);
-            callbackFunc.expressionFunc(msg.channel,msg.third);
+            callbackFunc.expressionFunc(msg.channel, msg.third);
             break;
         case msg::hold:
 
             //ホールド1
             _nullChk(callbackFunc.holdFunc);
-            callbackFunc.holdFunc(msg.channel,msg.third);
+            callbackFunc.holdFunc(msg.channel, msg.third);
             break;
         case msg::rpnMsb:
 
@@ -469,14 +469,14 @@ void MIDI::decodeControlChange(void){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::decodeRpn(void){
+void MIDI::decodeRpn(void) {
     uint16_t rpn = (rpnMsg.msb << 8) | rpnMsg.lsb;
 
-    switch(rpn){
+    switch (rpn) {
         case 0x0000:
             //ピッチベンドセンシティビティ
             _nullChk(callbackFunc.pitchBendSensitivityFunc);
-            callbackFunc.pitchBendSensitivityFunc(msg.channel,msg.third);
+            callbackFunc.pitchBendSensitivityFunc(msg.channel, msg.third);
             break;
         default:
 
@@ -505,8 +505,8 @@ void MIDI::decodeRpn(void){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::decodeSystemExclusive(void){
-    if(checkReset()){
+void MIDI::decodeSystemExclusive(void) {
+    if (checkReset()) {
         //リセット時の関数呼び出し
         _nullChk(callbackFunc.resetFunc);
         callbackFunc.resetFunc();
@@ -514,7 +514,7 @@ void MIDI::decodeSystemExclusive(void){
 
         //それ以外の時の関数呼び出し
         _nullChk(callbackFunc.sysExFunc);
-        callbackFunc.sysExFunc(sysExBuf.buffer,sysExBuf.pos);
+        callbackFunc.sysExFunc(sysExBuf.buffer, sysExBuf.pos);
 
     }
 
@@ -535,40 +535,40 @@ void MIDI::decodeSystemExclusive(void){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-bool MIDI::checkReset(void){
+bool MIDI::checkReset(void) {
 
     //リセットかどうか
     bool flag;
     //まず長さで判断
-    if(sysExBuf.pos < 3)return false;
+    if (sysExBuf.pos < 3)return false;
     //GMシステムオンと比較
     flag = true;
-    for(int i = 0;i <= 3;i++){
-        if(gmSystemOn[i] != sysExBuf.buffer[i]){
+    for (int i = 0; i <= 3; i++) {
+        if (gmSystemOn[i] != sysExBuf.buffer[i]) {
             flag = false;
         }
     }
-    if(flag){
+    if (flag) {
         return true;
     }
-    if(sysExBuf.pos < 6)return false;
+    if (sysExBuf.pos < 6)return false;
     //XGシステムオンと比較
     flag = true;
-    for(int i = 0;i <= 6;i++){
-        if(xgSystemOn[i] != sysExBuf.buffer[i]){
+    for (int i = 0; i <= 6; i++) {
+        if (xgSystemOn[i] != sysExBuf.buffer[i]) {
             flag = false;
         }
     }
-    if(flag)return true;
+    if (flag)return true;
     //GSリセットと比較
-    if(sysExBuf.pos < 8)return false;
+    if (sysExBuf.pos < 8)return false;
     flag = true;
-    for(int i = 0;i <= 8;i++){
-        if(gsReset[i] != sysExBuf.buffer[i]){
+    for (int i = 0; i <= 8; i++) {
+        if (gsReset[i] != sysExBuf.buffer[i]) {
             flag = false;
         }
     }
-    if(flag)return true;
+    if (flag)return true;
 
     return false;
 }
@@ -587,8 +587,8 @@ bool MIDI::checkReset(void){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::setCallback(uint8_t msgType,void (*func)(uint8_t,uint8_t,uint8_t)){
-    switch(msgType){
+void MIDI::setCallback(uint8_t msgType, void (*func)(uint8_t, uint8_t, uint8_t)) {
+    switch (msgType) {
         case msg::noteOn:
 
             //ノートオン
@@ -621,8 +621,8 @@ void MIDI::setCallback(uint8_t msgType,void (*func)(uint8_t,uint8_t,uint8_t)){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::setCallback(uint8_t msgType,void (*func)(uint8_t,uint16_t)){
-    switch(msgType){
+void MIDI::setCallback(uint8_t msgType, void (*func)(uint8_t, uint16_t)) {
+    switch (msgType) {
         case msg::pitchBend:
 
             //ピッチベンド
@@ -650,8 +650,8 @@ void MIDI::setCallback(uint8_t msgType,void (*func)(uint8_t,uint16_t)){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::setCallback(uint8_t msgType,void (*func)(uint8_t,uint8_t)){
-    switch(msgType){
+void MIDI::setCallback(uint8_t msgType, void (*func)(uint8_t, uint8_t)) {
+    switch (msgType) {
         case msg::noteOff:
 
             //ノートオフ
@@ -709,8 +709,8 @@ void MIDI::setCallback(uint8_t msgType,void (*func)(uint8_t,uint8_t)){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::setCallback(uint8_t msgType,void (*func)(uint8_t)){
-    switch(msgType){
+void MIDI::setCallback(uint8_t msgType, void (*func)(uint8_t)) {
+    switch (msgType) {
         case msg::allSoundOff:
 
             //オールサウンドオフ
@@ -744,8 +744,8 @@ void MIDI::setCallback(uint8_t msgType,void (*func)(uint8_t)){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::setCallback(uint8_t msgType,void (*func)(void)){
-    switch(msgType){
+void MIDI::setCallback(uint8_t msgType, void (*func)(void)) {
+    switch (msgType) {
         case msg::reset:
 
             //リセット
@@ -773,8 +773,8 @@ void MIDI::setCallback(uint8_t msgType,void (*func)(void)){
 ///                 Ver1.00 初版
 ///
 ////////////////////////////////////////////////////////////////////////////////
-void MIDI::setCallback(uint8_t msgType,void (*func)(uint8_t*,uint8_t)){
-    switch(msgType){
+void MIDI::setCallback(uint8_t msgType, void (*func)(uint8_t *, uint8_t)) {
+    switch (msgType) {
         case msg::sysEx:
 
             //リセット

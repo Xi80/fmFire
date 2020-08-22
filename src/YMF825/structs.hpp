@@ -1,11 +1,12 @@
 #pragma once
+
 #include <mbed.h>
 
-struct midiStatus_t{
+struct midiStatus_t {
     uint8_t modulation = 0;
     uint8_t partLevel = 100;
     uint8_t expression = 127;
-    bool    hold = false;
+    bool hold = false;
 
     uint16_t pitchBend = 8192;
     uint8_t pitchBendSensitivity = 2;
@@ -13,7 +14,7 @@ struct midiStatus_t{
     uint8_t inst;
 };
 
-struct fmStatus_t{
+struct fmStatus_t {
     bool isUsed = false;
     bool isRelease = false;
     uint8_t midiChannel = 0;

@@ -4,6 +4,7 @@
 #include "circularBuffer.hpp"
 #include "constants.hpp"
 #include "structs.hpp"
+
 #define _nullChk(x) if((x) == NULL)return
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,45 +28,54 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-class MIDI{
-    public:
-        MIDI(PinName tx,PinName rx,uint16_t baud);
+class MIDI {
+public:
+    MIDI(PinName tx, PinName rx, uint16_t baud);
 
-        void setCallback(uint8_t,void (*func)(uint8_t,uint8_t,uint8_t));
-        void setCallback(uint8_t,void (*func)(uint8_t,uint16_t));
-        void setCallback(uint8_t,void (*func)(uint8_t,uint8_t));
-        void setCallback(uint8_t,void (*func)(uint8_t*,uint8_t));
-        void setCallback(uint8_t,void (*func)(uint8_t));
-        void setCallback(uint8_t,void (*func)(void));
+    void setCallback(uint8_t, void (*func)(uint8_t, uint8_t, uint8_t));
 
-        void parseMIDI(void);
+    void setCallback(uint8_t, void (*func)(uint8_t, uint16_t));
 
-    private:
-        UnbufferedSerial _serial;
+    void setCallback(uint8_t, void (*func)(uint8_t, uint8_t));
 
-        lunaLib::CircularBuffer<uint8_t,512> circularBuffer;
+    void setCallback(uint8_t, void (*func)(uint8_t *, uint8_t));
 
-        uint8_t temp;
+    void setCallback(uint8_t, void (*func)(uint8_t));
 
-        //parseMIDI
-            struct message msg;
-            struct sysExBuffer sysExBuf;
-            struct callbacks callbackFunc;
-            struct rpn rpnMsg;
-            bool threeByteFlag = false;
-            bool isSystemExclusive = false;
+    void setCallback(uint8_t, void (*func)(void));
 
-        void getData(void);
+    void parseMIDI(void);
 
-        void setTwoBytes(bool);
+private:
+    UnbufferedSerial _serial;
 
-        void parseNormalMessages(void);
-        void parseSystemExclusives(void);
+    lunaLib::CircularBuffer<uint8_t, 512> circularBuffer;
 
-        void decodeNormalMessage(void);
-            void decodeControlChange(void);
-                void decodeRpn(void);
-        void decodeSystemExclusive(void);
+    uint8_t temp;
 
-        bool checkReset(void);
+    //parseMIDI
+    struct message msg;
+    struct sysExBuffer sysExBuf;
+    struct callbacks callbackFunc;
+    struct rpn rpnMsg;
+    bool threeByteFlag = false;
+    bool isSystemExclusive = false;
+
+    void getData(void);
+
+    void setTwoBytes(bool);
+
+    void parseNormalMessages(void);
+
+    void parseSystemExclusives(void);
+
+    void decodeNormalMessage(void);
+
+    void decodeControlChange(void);
+
+    void decodeRpn(void);
+
+    void decodeSystemExclusive(void);
+
+    bool checkReset(void);
 };

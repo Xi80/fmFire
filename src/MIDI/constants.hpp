@@ -1,4 +1,5 @@
 #pragma once
+
 #include <mbed.h>
 
 
@@ -8,7 +9,7 @@ const uint8_t xgSystemOn[] = {0x43, 0x10, 0x4C, 0x00, 0x00, 0x7E, 0x00};
 
 const uint8_t gsReset[] = {0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7F, 0x00, 0x41};
 
-namespace msg{
+namespace msg {
     const uint8_t noteOff = 0x80;
     const uint8_t noteOn = 0x90;
     const uint8_t controlChange = 0xB0;
@@ -19,7 +20,7 @@ namespace msg{
     const uint8_t allNoteOff = 0x7A;
 
     const uint8_t sysEx = 0xF0;
-    const uint8_t beginSysEx= 0xF0;
+    const uint8_t beginSysEx = 0xF0;
     const uint8_t endSysEx = 0xF7;
 
     const uint8_t modulation = 0x01;
