@@ -1,14 +1,14 @@
-# fmSynth16
+# fmFire
 
-STM32とYMF825Boardを使用したスタンドアロンハードウェアMIDI音源。
+STM32とYMF825Boardを使用したスタンドアロンハードウェアMIDI音源のファームウェア
 
 
 
 ## ライセンス
 
-fmSynth16はmbedフレームワーク上で動作します、それらの部分はもともとのライセンスに準じます。
+fmFireはmbedフレームワーク上で動作します、それらの部分はもともとのライセンスに準じます。
 
-fmSynth16のソースコード自体は[CC BY-NC-ND](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.ja)です。
+fmFireのソースコード自体は[CC BY-NC-ND](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.ja)です。
 
 
 
