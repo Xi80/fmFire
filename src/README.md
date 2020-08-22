@@ -27,14 +27,14 @@ https://soundcloud.com/user-273146202/ethereal-house-mix-with-ymf825-midi-synthe
 ## 諸元
 
 > - GM Lite相当(ただし、リズム音源は除く)
-> - Sakura303 Ver1.7c時点での情報です
+> - fmFire Ver2.2d時点での情報です
 >   - MCU:STM32F303K8T6(72MHz,RAM12KB,Flash64KB)
 >   - チャネル数:16
 >   - 最大同時発音数:16
 >   - 音源IC:YMF825
 >   - インプリメンテーションチャートは別途記載
 >   - I/F:3.5mmジャック、MIDI IN
->   - 電源:5v 1.0A以上
+>   - 電源:12v 1.0A以上
 
 
 
@@ -80,7 +80,7 @@ https://soundcloud.com/user-273146202/ethereal-house-mix-with-ymf825-midi-synthe
 
 ## 備考
 
-質問・バグなどは[Twitter](twitter.com/status/LunaTsukinashi)もしくはこの[RepoのIssue](https://github.com/Xi80/fmSynth16/issues)で知らせていただけると幸いです。
+質問・バグなどは[Twitter](twitter.com/status/LunaTsukinashi)もしくはこの[RepoのIssue](https://github.com/Xi80/fmFire/issues)で知らせていただけると幸いです。
 
 コードについては徐々にリファクタリングを進めていきます。
 
@@ -95,6 +95,7 @@ https://soundcloud.com/user-273146202/ethereal-house-mix-with-ymf825-midi-synthe
 ## 改変履歴
 
 > [2020-08-04] - 初版(Ver1.7c)
+
 > [2020-08-22] - 第2版(Ver2.2d)
 
 
