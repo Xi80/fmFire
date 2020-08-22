@@ -20,8 +20,6 @@ STM32F303K8T6または同等以上の性能を持ったSTM32 Nucleoボード上�
 
 本体にリズム音源以外のGM音色を内蔵しており、PCを介さずスタンドアロンでの使用が可能です。
 
-![Board](IMGS/circuit.png)
-
 ## サンプル(演奏風景)
 
 https://soundcloud.com/user-273146202/ethereal-house-mix-with-ymf825-midi-synthesiser
@@ -97,6 +95,6 @@ https://soundcloud.com/user-273146202/ethereal-house-mix-with-ymf825-midi-synthe
 ## 改変履歴
 
 > [2020-08-04] - 初版(Ver1.7c)
-
+> [2020-08-22] - 第2版(Ver2.2d)
 
 
