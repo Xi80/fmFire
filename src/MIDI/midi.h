@@ -6,9 +6,9 @@
 #include "../tables.h"
 #include "../structs.h"
 
-const int receiveMessageBufferSize = 0xFF;
+const int receiveMessageBufferSize = 1024;
 
-const int systemExclusiveBufferSize = 0x7F;
+const int systemExclusiveBufferSize = 128;
 
 class midi {
 public:
@@ -36,6 +36,8 @@ public:
     void setCallbackReceiveSystemExclusive(void (*func)(uint8_t *, uint8_t));
 
     void midiParse(void);
+
+    void rxIrq(bool);
 
 private:
     UnbufferedSerial _serial;

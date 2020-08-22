@@ -17,6 +17,8 @@ public:
 
     void setToneListFromGM(uint8_t, uint8_t);
 
+    void midiNoteOn(uint8_t ch,uint8_t no,uint8_t ve,uint8_t chv,uint16_t pb,uint8_t pbs,uint8_t in,uint8_t modu);
+
     void noteOn(uint8_t, uint8_t, uint8_t, uint8_t);
 
     void noteOff(uint8_t);
@@ -35,7 +37,6 @@ public:
 
     SPI _spi;
 private:
-    uint8_t recentPb = 0x00;
     DigitalOut _slaveSelect, _reset;
     uint8_t toneNumbers[16];
     void singleWrite(uint8_t, uint8_t);
