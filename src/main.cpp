@@ -91,7 +91,6 @@ void initCallbacks(void) {
 }
 
 int main() {
-    ymf825.init();
     initCallbacks();
     while (1) {
         midi.parseMIDI();

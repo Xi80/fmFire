@@ -3,8 +3,8 @@
 #include <mbed.h>
 
 struct rpn {
-    uint8_t msb;
-    uint8_t lsb;
+    uint8_t msb = 0x7F;
+    uint8_t lsb = 0x7F;
 };
 
 struct message {

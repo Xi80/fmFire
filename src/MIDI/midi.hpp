@@ -46,6 +46,7 @@ public:
 
     void parseMIDI(void);
 
+    void init(void);
 private:
     UnbufferedSerial _serial;
 

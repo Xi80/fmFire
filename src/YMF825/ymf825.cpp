@@ -41,6 +41,7 @@ void YMF825::init() {
     singleWrite(0x14, 0x00);
     singleWrite(0x03, 0x01);
     singleWrite(0x09, 0xF8);
+    singleWrite(0x1B,0x3F);
     programChange(15, 0);
     return;
 }

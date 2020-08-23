@@ -68,6 +68,32 @@ MIDI::MIDI(PinName tx, PinName rx, uint16_t baud) : _serial(tx, rx) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// @brief          初期化
+/// @fn             init
+/// @param[in]      なし
+/// @param[out]     なし
+/// @return         なし
+/// @author         LunaTsukinashi
+/// @date           2020-07-29
+/// @note           UnbufferedSerialを使用するため必然的にmbedOS6以降のみ対応
+/// @attention      他コードでシリアル送信を使う場合はCircularBufferの修正が
+///                 必要。
+/// @par            History
+///                 Ver1.00 初版
+///
+////////////////////////////////////////////////////////////////////////////////
+void MIDI::init(void) {
+    circularBuffer.clear();
+    _nullChk(callbackFunc.noteOnFunc);
+     _nullChk(callbackFunc.noteOffFunc);
+    callbackFunc.noteOnFunc(0x00,0x40,0x7F);
+    thread_sleep_for(200);
+    callbackFunc.noteOffFunc(0x00,0x40);
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
 /// @brief          データの受信
 /// @fn             getData
 /// @param[in]      なし
